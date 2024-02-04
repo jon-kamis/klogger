@@ -1,15 +1,16 @@
 // Package logger contains custom logging methods
-package logger
+package klogger
 
 import (
 	"fmt"
-	"github.com/jon-kamis/klogger/internal/config"
-	"github.com/jon-kamis/klogger/internal/constants"
-	"github.com/jon-kamis/klogger/internal/enum/loglevel"
 	"os"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/jon-kamis/klogger/internal/config"
+	"github.com/jon-kamis/klogger/internal/constants"
+	"github.com/jon-kamis/klogger/internal/enum/loglevel"
 )
 
 // Function WriteLogToFile writes a log to file based on config settings
