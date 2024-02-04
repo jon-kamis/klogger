@@ -1,0 +1,5 @@
+Klogger:
+  LogFileName: "app.txt"
+  LogFileDir: "logs"
+  LogLevel: 1
+  LogFileLevel: 2
