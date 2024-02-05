@@ -111,7 +111,7 @@ func Trace(method string, m string, args ...interface{}) {
 
 //Function RefreshConfig causes the Klogger module to refresh its config
 func RefreshConfig() {
-	
+	config.RefreshConfig()
 }
 
 //Function
