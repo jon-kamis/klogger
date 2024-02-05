@@ -14,9 +14,8 @@ func TestLoadConfig(t *testing.T) {
 	//	o := "overridden value"
 	fn := "\\properties\\test\\klogger-loadconf-properties.yml"
 	fp, err := getFilePath()
-	ffn := fmt.Sprintf("%s%s",fp,fn)
+	ffn := fmt.Sprintf("%s%s", fp, fn)
 	assert.Nil(t, err)
-
 
 	//First Assert that the default filepath is returned if the env variable is not set
 	c := loadConfig()
@@ -36,7 +35,6 @@ func TestLoadConfig(t *testing.T) {
 	s, ok = c.LogFileDir.Value.(string)
 	assert.True(t, ok)
 	assert.Equal(t, DefaultConfig.LogFileDir.Value, s)
-
 
 }
 

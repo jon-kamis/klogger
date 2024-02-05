@@ -19,11 +19,7 @@ func writeLogToFile(l loglevel.LogLevel, msg string) {
 
 	c := config.GetConfig()
 
-	ll, ok := c.LogFileLevel.Value.(loglevel.LogLevel)
-
-	if !ok {
-		panic("log level config is invalid!")
-	}
+	ll := getLogLevelOrPanic(c)
 
 	if ll > l {
 		return
@@ -106,28 +102,52 @@ func checkFileRollover(c config.KloggerConfig) {
 // Function Enter returns a formated string used to declare where a method begins execution
 func Enter(method string) {
 	msg := fmt.Sprintf(constants.StdMsg, time.Now().Format(time.RFC3339), loglevel.Info, method, constants.Enter)
-	fmt.Printf("%s\n", msg)
+
+	ll := getLogLevelOrPanic(config.GetConfig())
+
+	if ll <= loglevel.Info {
+		fmt.Printf("%s\n", msg)
+	}
+
 	writeLogToFile(loglevel.Info, msg)
 }
 
 // Function Exit returns a formated string used to declare where a method ends execution
 func Exit(method string) {
 	msg := fmt.Sprintf(constants.StdMsg, time.Now().Format(time.RFC3339), loglevel.Info, method, constants.Exit)
-	fmt.Printf("%s\n", msg)
+
+	ll := getLogLevelOrPanic(config.GetConfig())
+
+	if ll <= loglevel.Info {
+		fmt.Printf("%s\n", msg)
+	}
+
 	writeLogToFile(loglevel.Info, msg)
 }
 
 // Function Error returns a formated string used to log a given error along with a custom error message and declaring which method the error occured in
 func Error(method string, m string, args ...interface{}) {
 	msg := fmt.Sprintf(fmt.Sprintf(constants.StdMsg, time.Now().Format(time.RFC3339), loglevel.Error, method, m), args...)
-	fmt.Printf("%s\n", msg)
+
+	ll := getLogLevelOrPanic(config.GetConfig())
+
+	if ll <= loglevel.Error {
+		fmt.Printf("%s\n", msg)
+	}
+
 	writeLogToFile(loglevel.Error, msg)
 }
 
 // Function Warn returns a formated string used to log a given error along with a custom error message and declaring which method the warning occured in
 func Warn(method string, m string, args ...interface{}) {
 	msg := fmt.Sprintf(fmt.Sprintf(constants.StdMsg, time.Now().Format(time.RFC3339), loglevel.Warn, method, m), args...)
-	fmt.Printf("%s\n", msg)
+
+	ll := getLogLevelOrPanic(config.GetConfig())
+
+	if ll <= loglevel.Warn {
+		fmt.Printf("%s\n", msg)
+	}
+
 	writeLogToFile(loglevel.Warn, msg)
 }
 
@@ -140,20 +160,47 @@ func ExitError(method string, msg string, args ...interface{}) {
 // Fucntion Info returns a formatted string containing a custom message and the method that the message is coming from
 func Info(method string, m string, args ...interface{}) {
 	msg := fmt.Sprintf(fmt.Sprintf(constants.StdMsg, time.Now().Format(time.RFC3339), loglevel.Info, method, m), args...)
-	fmt.Printf("%s\n", msg)
+	ll := getLogLevelOrPanic(config.GetConfig())
+
+	if ll <= loglevel.Info {
+		fmt.Printf("%s\n", msg)
+	}
+
 	writeLogToFile(loglevel.Info, msg)
 }
 
 // Fucntion Info returns a formatted string containing a custom message and the method that the message is coming from
 func Debug(method string, m string, args ...interface{}) {
 	msg := fmt.Sprintf(fmt.Sprintf(constants.StdMsg, time.Now().Format(time.RFC3339), loglevel.Debug, method, m), args...)
-	fmt.Printf("%s\n", msg)
+
+	ll := getLogLevelOrPanic(config.GetConfig())
+
+	if ll <= loglevel.Debug {
+		fmt.Printf("%s\n", msg)
+	}
+
 	writeLogToFile(loglevel.Debug, msg)
 }
 
 // Fucntion Info returns a formatted string containing a custom message and the method that the message is coming from
 func Trace(method string, m string, args ...interface{}) {
 	msg := fmt.Sprintf(fmt.Sprintf(constants.StdMsg, time.Now().Format(time.RFC3339), loglevel.Trace, method, m), args...)
-	fmt.Printf("%s\n", msg)
+	
+	ll := getLogLevelOrPanic(config.GetConfig())
+
+	if ll <= loglevel.Trace {
+		fmt.Printf("%s\n", msg)
+	}
+
 	writeLogToFile(loglevel.Trace, msg)
+}
+
+func getLogLevelOrPanic(c config.KloggerConfig) loglevel.LogLevel {
+	ll, err := loglevel.GetLogLevelFromInterface(c.LogFileLevel.Value)
+
+	if err != nil {
+		panic("log level config is invalid!")
+	}
+
+	return ll
 }

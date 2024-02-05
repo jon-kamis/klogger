@@ -1,6 +1,8 @@
 package loglevel
 
 import (
+	"errors"
+
 	"github.com/jon-kamis/klogger/internal/constants"
 )
 
@@ -47,4 +49,15 @@ func GetLogLevel(i int64) LogLevel {
 		return Error
 	}
 	return 0
+}
+
+// Function GetLogLevelFromInterface type asserts a log level from an interface and returns the value if it is valid. Otherwise causes a panic
+func GetLogLevelFromInterface(i interface{}) (LogLevel, error) {
+	ll, ok := i.(LogLevel)
+
+	if !ok {
+		return All, errors.New("log level is invalid")
+	}
+
+	return ll, nil
 }
