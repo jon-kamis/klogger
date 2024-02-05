@@ -22,7 +22,7 @@ func TestLoadConfig(t *testing.T) {
 	assert.Equal(t, d.PropFileName.Value, c.PropFileName.Value)
 
 	//Second Assert that the env value overrides the default prop file name when set
-	os.Setenv("PropFileName", ffn)
+	os.Setenv("KloggerPropFileName", ffn)
 	c = loadConfig()
 	assert.Equal(t, ffn, c.PropFileName.Value)
 

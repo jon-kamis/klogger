@@ -31,7 +31,7 @@ type KloggerConfig struct {
 // Function GetDefaultConfig returns a FinanceManagerConfig object containing the default values for each environment variable
 var DefaultConfig = KloggerConfig{
 	PropFileName: Property{
-		Name:  "PropFileName",
+		Name:  "KloggerPropFileName",
 		Value: constants.DefaultPropFileName,
 	},
 	LogFileName: Property{
