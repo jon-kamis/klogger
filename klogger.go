@@ -124,6 +124,13 @@ func Error(method string, m string, args ...interface{}) {
 	writeLogToFile(loglevel.Error, msg)
 }
 
+// Function Warn returns a formated string used to log a given error along with a custom error message and declaring which method the warning occured in
+func Warn(method string, m string, args ...interface{}) {
+	msg := fmt.Sprintf(fmt.Sprintf(constants.StdMsg, time.Now().Format(time.RFC3339), loglevel.Warn, method, m), args...)
+	fmt.Printf("%s\n", msg)
+	writeLogToFile(loglevel.Warn, msg)
+}
+
 // Function ExitError returns a formated string used to combine the Exit and Error functions together
 func ExitError(method string, msg string, args ...interface{}) {
 	Error(method, msg, args...)

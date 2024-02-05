@@ -161,6 +161,35 @@ func TestTrace(t *testing.T) {
 
 }
 
+func TestWarn(t *testing.T) {
+	os.Setenv("PropFileName", logLevelAllFileName)
+	os.Setenv(constants.UseCacheEnvName, "false")
+
+	os.RemoveAll("test-logs")
+
+	method := "TestInfo"
+	Warn(method, "Testing trace message with added messages: %s and %s", "m1", "m2")
+
+	f, err := os.ReadFile("test-logs/application-test.log")
+	assert.Nil(t, err)
+
+	m := strings.Split(string(f), " ")
+
+	assert.Equal(t, strings.Trim(constants.LogLevelWarn, " "), m[1])
+	assert.Equal(t, method, m[2])
+
+	//Test with this log level disabled
+	os.RemoveAll("test-logs")
+	os.Setenv("PropFileName", logLevelErrorFileName)
+	Warn(method, "Testing info message with added messages: %s and %s", "m1", "m2")
+	_, err = os.ReadFile("test-logs/application-test.log")
+	assert.NotNil(t, err)
+
+	//Cleanup
+	os.RemoveAll("test-logs")
+
+}
+
 func TestError(t *testing.T) {
 	os.Setenv("PropFileName", logLevelAllFileName)
 	os.Setenv(constants.UseCacheEnvName, "false")
