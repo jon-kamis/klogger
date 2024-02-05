@@ -15,6 +15,7 @@ const (
 	Info
 	Warn
 	Error
+	None
 )
 
 func (l LogLevel) String() string {
@@ -29,6 +30,8 @@ func (l LogLevel) String() string {
 		return constants.LogLevelWarn
 	case Error:
 		return constants.LogLevelErr
+	case None:
+		return constants.LogLevelNone
 	}
 	return "UNKWN"
 }
@@ -47,6 +50,8 @@ func GetLogLevel(i int64) LogLevel {
 		return Warn
 	case 5:
 		return Error
+	case 6:
+		return None
 	}
 	return 0
 }
