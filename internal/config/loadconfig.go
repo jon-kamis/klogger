@@ -65,7 +65,7 @@ func loadFromEnvVariable(p Property) Property {
 	}
 
 	if value != "" {
-		fmt.Printf("[Klogger] Read environment variable for property: %s", p.Name)
+		fmt.Printf("[Klogger] Read environment variable for property: %s\n", p.Name)
 		r.Value = value
 	}
 
@@ -98,11 +98,11 @@ func loadProperty(p Property, fn string) Property {
 					return p
 				}
 
-				fmt.Printf("[Klogger] Read property file entry for property: %s", p.Name)
+				fmt.Printf("[Klogger] Read property file entry for property: %s\n", p.Name)
 				r.Value = loglevel.GetLogLevel(int64(i))
 				return r
 			}
-			fmt.Printf("[Klogger] Read property file entry for property: %s", p.Name)
+			fmt.Printf("[Klogger] Read property file entry for property: %s\n", p.Name)
 			r.Value = props.Klogger[p.Name]
 			return r
 
