@@ -19,7 +19,7 @@ func writeLogToFile(l loglevel.LogLevel, msg string) {
 
 	c := config.GetConfig()
 
-	ll := getLogLevelOrPanic(c)
+	ll := getLogLevelOrPanic(c.LogFileLevel.Value)
 
 	if ll > l {
 		return
@@ -103,7 +103,7 @@ func checkFileRollover(c config.KloggerConfig) {
 func Enter(method string) {
 	msg := fmt.Sprintf(constants.StdMsg, time.Now().Format(time.RFC3339), loglevel.Info, method, constants.Enter)
 
-	ll := getLogLevelOrPanic(config.GetConfig())
+	ll := getLogLevelOrPanic(config.GetConfig().LogLevel.Value)
 
 	if ll <= loglevel.Info {
 		fmt.Printf("%s\n", msg)
@@ -116,7 +116,7 @@ func Enter(method string) {
 func Exit(method string) {
 	msg := fmt.Sprintf(constants.StdMsg, time.Now().Format(time.RFC3339), loglevel.Info, method, constants.Exit)
 
-	ll := getLogLevelOrPanic(config.GetConfig())
+	ll := getLogLevelOrPanic(config.GetConfig().LogLevel.Value)
 
 	if ll <= loglevel.Info {
 		fmt.Printf("%s\n", msg)
@@ -129,7 +129,7 @@ func Exit(method string) {
 func Error(method string, m string, args ...interface{}) {
 	msg := fmt.Sprintf(fmt.Sprintf(constants.StdMsg, time.Now().Format(time.RFC3339), loglevel.Error, method, m), args...)
 
-	ll := getLogLevelOrPanic(config.GetConfig())
+	ll := getLogLevelOrPanic(config.GetConfig().LogLevel.Value)
 
 	if ll <= loglevel.Error {
 		fmt.Printf("%s\n", msg)
@@ -142,7 +142,7 @@ func Error(method string, m string, args ...interface{}) {
 func Warn(method string, m string, args ...interface{}) {
 	msg := fmt.Sprintf(fmt.Sprintf(constants.StdMsg, time.Now().Format(time.RFC3339), loglevel.Warn, method, m), args...)
 
-	ll := getLogLevelOrPanic(config.GetConfig())
+	ll := getLogLevelOrPanic(config.GetConfig().LogLevel.Value)
 
 	if ll <= loglevel.Warn {
 		fmt.Printf("%s\n", msg)
@@ -160,7 +160,7 @@ func ExitError(method string, msg string, args ...interface{}) {
 // Fucntion Info returns a formatted string containing a custom message and the method that the message is coming from
 func Info(method string, m string, args ...interface{}) {
 	msg := fmt.Sprintf(fmt.Sprintf(constants.StdMsg, time.Now().Format(time.RFC3339), loglevel.Info, method, m), args...)
-	ll := getLogLevelOrPanic(config.GetConfig())
+	ll := getLogLevelOrPanic(config.GetConfig().LogLevel.Value)
 
 	if ll <= loglevel.Info {
 		fmt.Printf("%s\n", msg)
@@ -173,7 +173,7 @@ func Info(method string, m string, args ...interface{}) {
 func Debug(method string, m string, args ...interface{}) {
 	msg := fmt.Sprintf(fmt.Sprintf(constants.StdMsg, time.Now().Format(time.RFC3339), loglevel.Debug, method, m), args...)
 
-	ll := getLogLevelOrPanic(config.GetConfig())
+	ll := getLogLevelOrPanic(config.GetConfig().LogLevel.Value)
 
 	if ll <= loglevel.Debug {
 		fmt.Printf("%s\n", msg)
@@ -186,7 +186,7 @@ func Debug(method string, m string, args ...interface{}) {
 func Trace(method string, m string, args ...interface{}) {
 	msg := fmt.Sprintf(fmt.Sprintf(constants.StdMsg, time.Now().Format(time.RFC3339), loglevel.Trace, method, m), args...)
 	
-	ll := getLogLevelOrPanic(config.GetConfig())
+	ll := getLogLevelOrPanic(config.GetConfig().LogLevel.Value)
 
 	if ll <= loglevel.Trace {
 		fmt.Printf("%s\n", msg)
@@ -195,8 +195,8 @@ func Trace(method string, m string, args ...interface{}) {
 	writeLogToFile(loglevel.Trace, msg)
 }
 
-func getLogLevelOrPanic(c config.KloggerConfig) loglevel.LogLevel {
-	ll, err := loglevel.GetLogLevelFromInterface(c.LogFileLevel.Value)
+func getLogLevelOrPanic(i interface{}) loglevel.LogLevel {
+	ll, err := loglevel.GetLogLevelFromInterface(i)
 
 	if err != nil {
 		panic("log level config is invalid!")
