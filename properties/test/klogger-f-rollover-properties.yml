@@ -1,0 +1,6 @@
+klogger:
+  LogFileName: "application-test.log"
+  LogFileDir: "test-logs"
+  DoRollover: true
+  DoSizeRollover: true
+  RolloverSize: 10

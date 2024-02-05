@@ -19,3 +19,7 @@
 
 # Go workspace file
 go.work
+
+# Log file output
+logs
+test-logs

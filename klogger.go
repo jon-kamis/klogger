@@ -16,7 +16,6 @@ import (
 // Function WriteLogToFile writes a log to file based on config settings
 // m - Method, l - Log Level, msg - Message
 func writeLogToFile(l loglevel.LogLevel, msg string) {
-	_ = os.Mkdir("logs", os.ModePerm)
 
 	c := config.GetConfig()
 
@@ -26,11 +25,19 @@ func writeLogToFile(l loglevel.LogLevel, msg string) {
 		panic("log level config is invalid!")
 	}
 
-	if ll < l {
+	if ll > l {
 		return
 	}
 
-	fn := fmt.Sprintf("%s/%s", c.LogFileDir.Value, c.LogFileName.Value)
+	fd, ok := c.LogFileDir.Value.(string)
+
+	if !ok {
+		panic("log file directory is invalid!")
+	}
+
+	_ = os.Mkdir(fd, os.ModePerm)
+
+	fn := fmt.Sprintf("%s/%s", fd, c.LogFileName.Value)
 
 	if c.DoRollover.Value == true {
 		checkFileRollover(c)
@@ -43,16 +50,16 @@ func writeLogToFile(l loglevel.LogLevel, msg string) {
 		return
 	}
 
-	f.Write([]byte(msg))
+	f.Write([]byte(msg + "\n"))
 	f.Close()
 }
 
 func checkFileRollover(c config.KloggerConfig) {
 	fi, err := os.Stat(fmt.Sprintf("%s/%s", c.LogFileDir.Value, c.LogFileName.Value))
 
-	rs, ok := c.RolloverSize.Value.(int64)
+	rs, ok := c.RolloverSize.Value.(int)
 
-	if err == nil && c.DoSizeRollover.Value == true && ok && fi.Size() > rs {
+	if err == nil && c.DoSizeRollover.Value == true && ok && fi.Size() > int64(rs) {
 		d, ok := c.LogFileDir.Value.(string)
 
 		if ok {
@@ -100,14 +107,14 @@ func checkFileRollover(c config.KloggerConfig) {
 func Enter(method string) {
 	msg := fmt.Sprintf(constants.StdMsg, time.Now().Format(time.RFC3339), loglevel.Info, method, constants.Enter)
 	fmt.Printf("%s\n", msg)
-	writeLogToFile(loglevel.Info, constants.Enter)
+	writeLogToFile(loglevel.Info, msg)
 }
 
 // Function Exit returns a formated string used to declare where a method ends execution
 func Exit(method string) {
 	msg := fmt.Sprintf(constants.StdMsg, time.Now().Format(time.RFC3339), loglevel.Info, method, constants.Exit)
 	fmt.Printf("%s\n", msg)
-	writeLogToFile(loglevel.Info, constants.Exit)
+	writeLogToFile(loglevel.Info, msg)
 }
 
 // Function Error returns a formated string used to log a given error along with a custom error message and declaring which method the error occured in
@@ -127,19 +134,19 @@ func ExitError(method string, msg string, args ...interface{}) {
 func Info(method string, m string, args ...interface{}) {
 	msg := fmt.Sprintf(fmt.Sprintf(constants.StdMsg, time.Now().Format(time.RFC3339), loglevel.Info, method, m), args...)
 	fmt.Printf("%s\n", msg)
-	writeLogToFile(loglevel.Info, constants.Exit)
+	writeLogToFile(loglevel.Info, msg)
 }
 
 // Fucntion Info returns a formatted string containing a custom message and the method that the message is coming from
 func Debug(method string, m string, args ...interface{}) {
 	msg := fmt.Sprintf(fmt.Sprintf(constants.StdMsg, time.Now().Format(time.RFC3339), loglevel.Debug, method, m), args...)
 	fmt.Printf("%s\n", msg)
-	writeLogToFile(loglevel.Debug, constants.Exit)
+	writeLogToFile(loglevel.Debug, msg)
 }
 
 // Fucntion Info returns a formatted string containing a custom message and the method that the message is coming from
 func Trace(method string, m string, args ...interface{}) {
 	msg := fmt.Sprintf(fmt.Sprintf(constants.StdMsg, time.Now().Format(time.RFC3339), loglevel.Trace, method, m), args...)
 	fmt.Printf("%s\n", msg)
-	writeLogToFile(loglevel.Trace, constants.Exit)
+	writeLogToFile(loglevel.Trace, msg)
 }

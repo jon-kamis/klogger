@@ -18,3 +18,5 @@ const LogLevelDebug = "DEBUG"
 const LogLevelInfo = "INFO "
 const LogLevelWarn = "WARN"
 const LogLevelErr = "ERROR"
+
+const UseCacheEnvName = "UseCache"

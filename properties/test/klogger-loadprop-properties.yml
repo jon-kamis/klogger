@@ -1,0 +1,5 @@
+klogger:
+  LogFileName: "test.log"
+  LogFileDir: "testing-logs"
+  LogLevel: 1
+  LogFileLevel: 2

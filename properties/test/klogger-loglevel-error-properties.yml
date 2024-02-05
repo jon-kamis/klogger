@@ -1,0 +1,5 @@
+klogger:
+  LogFileName: "application-test.log"
+  LogFileDir: "test-logs"
+  LogLevel: 5
+  LogFileLevel: 5

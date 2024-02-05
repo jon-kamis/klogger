@@ -1,5 +1,5 @@
-Klogger:
-  LogFileName: "app.txt"
+klogger:
+  LogFileName: "app.log"
   LogFileDir: "logs"
-  LogLevel: 1
-  LogFileLevel: 2
+  LogLevel: info
+  LogFileLevel: debug

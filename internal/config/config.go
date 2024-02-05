@@ -12,8 +12,8 @@ type Property struct {
 }
 
 // Type PropertyFileData is a struct representing a property file data for this go module
-type PropertyFileData struct {
-	Klogger map[string]string
+type Config struct {
+	Klogger map[string]interface{}
 }
 
 // Type KloggerConfig is a struct holding properties for the application

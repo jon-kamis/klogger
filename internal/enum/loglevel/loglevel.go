@@ -1,6 +1,8 @@
 package loglevel
 
-import "github.com/jon-kamis/klogger/internal/constants"
+import (
+	"github.com/jon-kamis/klogger/internal/constants"
+)
 
 type LogLevel int64
 
@@ -27,4 +29,22 @@ func (l LogLevel) String() string {
 		return constants.LogLevelErr
 	}
 	return "UNKWN"
+}
+
+func GetLogLevel(i int64) LogLevel {
+	switch i {
+	case 0:
+		return All
+	case 1:
+		return Trace
+	case 2:
+		return Debug
+	case 3:
+		return Info
+	case 4:
+		return Warn
+	case 5:
+		return Error
+	}
+	return 0
 }
