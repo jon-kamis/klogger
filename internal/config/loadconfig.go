@@ -26,6 +26,16 @@ func GetConfig() KloggerConfig {
 	return *cached
 }
 
+// Function RefreshConfig causes Klogger module to wipe its cache and refresh its configuration
+func RefreshConfig() KloggerConfig {
+
+	config := loadConfig()
+	cached := &config
+	c.Store(cached)
+
+	return *cached
+}
+
 func loadConfig() KloggerConfig {
 	//Read in Config
 	var config KloggerConfig
