@@ -40,7 +40,7 @@ func TestEnter(t *testing.T) {
 	assert.NotNil(t, err)
 
 	//Cleanup
-	//os.RemoveAll("test-logs")
+	os.RemoveAll("test-logs")
 
 }
 
@@ -100,6 +100,34 @@ func TestInfo(t *testing.T) {
 
 	//Cleanup
 	os.RemoveAll("test-logs")
+
+}
+
+func TestMultiLineLog(t *testing.T) {
+	os.Setenv("KloggerPropFileName", logLevelAllFileName)
+	os.Setenv(constants.UseCacheEnvName, "false")
+
+	os.RemoveAll("test-logs")
+
+	method := "TestInfo"
+	Info(method, "Testing info message with added messages: %s\nand %s on a second line", "m1", "m2")
+
+	f, err := os.ReadFile("test-logs/application-test.log")
+	assert.Nil(t, err)
+
+	l := strings.Split(string(f), "\n")
+	assert.Equal(t, 3, len(l))
+
+	m := strings.Split(l[0], " ")
+	assert.Equal(t, strings.Trim(constants.LogLevelInfo, " "), m[2])
+	assert.Equal(t, method, m[3])
+
+	m1 := strings.Split(l[1], " ")
+	assert.Equal(t, strings.Trim(constants.LogLevelInfo, " "), m1[2])
+	assert.Equal(t, method, m1[3])
+
+	//Cleanup
+	//os.RemoveAll("test-logs")
 
 }
 
