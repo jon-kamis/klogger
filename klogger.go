@@ -6,6 +6,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"sync/atomic"
 	"time"
 
 	"github.com/jon-kamis/klogger/internal/config"
@@ -13,129 +14,134 @@ import (
 	"github.com/jon-kamis/klogger/internal/enum/loglevel"
 )
 
+var ll atomic.Pointer[loglevel.LogLevel]
+var lfl atomic.Pointer[loglevel.LogLevel]
+
 // Function Enter returns a formated string used to declare where a method begins execution
 func Enter(method string) {
-	msg := fmt.Sprintf(constants.StdMsg, time.Now().Format(time.RFC3339), loglevel.Info, method, constants.Enter)
-
-	ll := getLogLevelOrPanic(config.GetConfig().LogLevel.Value)
-
-	if ll <= loglevel.Info {
-		fmt.Printf("%s\n", msg)
-	}
-
-	writeLogToFile(loglevel.Info, msg)
+	writeLog(constants.StdMsg, method, constants.Enter, loglevel.Info)
 }
 
 // Function Exit returns a formated string used to declare where a method ends execution
 func Exit(method string) {
-	msg := fmt.Sprintf(constants.StdMsg, time.Now().Format(time.RFC3339), loglevel.Info, method, constants.Exit)
-
-	ll := getLogLevelOrPanic(config.GetConfig().LogLevel.Value)
-
-	if ll <= loglevel.Info {
-		fmt.Printf("%s\n", msg)
-	}
-
-	writeLogToFile(loglevel.Info, msg)
+	writeLog(constants.StdMsg, method, constants.Exit, loglevel.Info)
 }
 
 // Function Error returns a formated string used to log a given error along with a custom error message and declaring which method the error occured in
-func Error(method string, m string, args ...interface{}) {
-	msg := fmt.Sprintf(fmt.Sprintf(constants.StdMsg, time.Now().Format(time.RFC3339), loglevel.Error, method, m), args...)
-
-	ll := getLogLevelOrPanic(config.GetConfig().LogLevel.Value)
-
-	if ll <= loglevel.Error {
-		fmt.Printf("%s\n", msg)
-	}
-
-	writeLogToFile(loglevel.Error, msg)
+func Error(method string, m string, args ...any) {
+	writeLog(constants.StdMsg, method, m, loglevel.Error, args)
 }
 
 // Function Warn returns a formated string used to log a given error along with a custom error message and declaring which method the warning occured in
-func Warn(method string, m string, args ...interface{}) {
-	msg := fmt.Sprintf(fmt.Sprintf(constants.StdMsg, time.Now().Format(time.RFC3339), loglevel.Warn, method, m), args...)
-
-	ll := getLogLevelOrPanic(config.GetConfig().LogLevel.Value)
-
-	if ll <= loglevel.Warn {
-		fmt.Printf("%s\n", msg)
-	}
-
-	writeLogToFile(loglevel.Warn, msg)
+func Warn(method string, m string, args ...any) {
+	writeLog(constants.StdMsg, method, m, loglevel.Warn, args)
 }
 
 // Function ExitError returns a formated string used to combine the Exit and Error functions together
-func ExitError(method string, msg string, args ...interface{}) {
+func ExitError(method string, msg string, args ...any) {
 	Error(method, msg, args...)
 	Exit(method)
 }
 
 // Fucntion Info returns a formatted string containing a custom message and the method that the message is coming from
-func Info(method string, m string, args ...interface{}) {
-	msg := fmt.Sprintf(fmt.Sprintf(constants.StdMsg, time.Now().Format(time.RFC3339), loglevel.Info, method, m), args...)
-	ll := getLogLevelOrPanic(config.GetConfig().LogLevel.Value)
-
-	if ll <= loglevel.Info {
-		fmt.Printf("%s\n", msg)
-	}
-
-	writeLogToFile(loglevel.Info, msg)
+func Info(method string, m string, args ...any) {
+	writeLog(constants.StdMsg, method, m, loglevel.Info, args)
 }
 
 // Fucntion Debug returns a formatted string containing a custom message and the method that the message is coming from
-func Debug(method string, m string, args ...interface{}) {
-	msg := fmt.Sprintf(fmt.Sprintf(constants.StdMsg, time.Now().Format(time.RFC3339), loglevel.Debug, method, m), args...)
-
-	ll := getLogLevelOrPanic(config.GetConfig().LogLevel.Value)
-
-	if ll <= loglevel.Debug {
-		fmt.Printf("%s\n", msg)
-	}
-
-	writeLogToFile(loglevel.Debug, msg)
+func Debug(method string, m string, args ...any) {
+	writeLog(constants.StdMsg, method, m, loglevel.Debug, args)
 }
 
 // Function Trace returns a formatted string containing a custom message and the method that the message is coming from
-func Trace(method string, m string, args ...interface{}) {
-	msg := fmt.Sprintf(fmt.Sprintf(constants.StdMsg, time.Now().Format(time.RFC3339), loglevel.Trace, method, m), args...)
-	
-	ll := getLogLevelOrPanic(config.GetConfig().LogLevel.Value)
-
-	if ll <= loglevel.Trace {
-		fmt.Printf("%s\n", msg)
-	}
-
-	writeLogToFile(loglevel.Trace, msg)
+func Trace(method string, m string, args ...any) {
+	writeLog(constants.StdMsg, method, m, loglevel.Trace, args)
 }
 
-//Function RefreshConfig causes the Klogger module to refresh its config
+// Function RefreshConfig causes the Klogger module to refresh its config
 func RefreshConfig() {
 	config.RefreshConfig()
 }
 
-//Function
-func getLogLevelOrPanic(i interface{}) loglevel.LogLevel {
-	ll, err := loglevel.GetLogLevelFromInterface(i)
+// Function writeLog writes a log to stdout and a log file
+// mt - message template
+// m - method
+// msg - message to log
+func writeLog(mt string, me string, msg string, logl loglevel.LogLevel, args ...any) {
+
+	//Check if anything will be logged by this command
+	if logl < getLogLevel() && logl < getLogFileLevel() {
+		return
+	}
+
+	//First fill in parameters
+	msg = fmt.Sprintf(msg, args...)
+	msgArr := strings.Split(msg, "\n")
+	t := time.Now().Format(constants.TimeFormat)
+
+	//Write to File if required
+	if logl >= getLogLevel() {
+
+		for _, m := range msgArr {
+			l := fmt.Sprintf(mt, t, logl, me, m)
+			fmt.Printf("%s\n", l)
+		}
+
+	}
+
+	if logl >= getLogFileLevel() {
+		for _, m := range msgArr {
+			l := fmt.Sprintf(mt, t, logl, me, m)
+			writeLogToFile(l)
+		}
+	}
+}
+
+// Function getLogLevel attempts to read in the log level from config
+func getLogLevel() loglevel.LogLevel {
+
+	cached := ll.Load()
+	if cached != nil && os.Getenv(constants.UseCacheEnvName) != "false" {
+		return *cached
+	}
+
+	logl, err := loglevel.GetLogLevelFromInterface(config.GetConfig().LogLevel.Value)
 
 	if err != nil {
 		panic("log level config is invalid!")
 	}
 
-	return ll
+	cached = &logl
+	ll.Store(cached)
+
+	return *cached
+}
+
+// Function getLogFileLevel attempts to read in the log file level from config
+func getLogFileLevel() loglevel.LogLevel {
+
+	cached := lfl.Load()
+	if cached != nil && os.Getenv(constants.UseCacheEnvName) != "false" {
+		return *cached
+	}
+
+	logfl, err := loglevel.GetLogLevelFromInterface(config.GetConfig().LogFileLevel.Value)
+
+	if err != nil {
+		panic("log level config is invalid!")
+	}
+
+	cached = &logfl
+	lfl.Store(cached)
+
+	return *cached
 }
 
 // Function WriteLogToFile writes a log to file based on config settings
-// m - Method, l - Log Level, msg - Message
-func writeLogToFile(l loglevel.LogLevel, msg string) {
+// m - message to log
+func writeLogToFile(msg string) {
 
 	c := config.GetConfig()
-
-	ll := getLogLevelOrPanic(c.LogFileLevel.Value)
-
-	if ll > l {
-		return
-	}
 
 	fd, ok := c.LogFileDir.Value.(string)
 
@@ -162,7 +168,7 @@ func writeLogToFile(l loglevel.LogLevel, msg string) {
 	f.Close()
 }
 
-//Function checkFileRollover determines if a file should be rolled over prior to writing to it
+// Function checkFileRollover determines if a file should be rolled over prior to writing to it
 func checkFileRollover(c config.KloggerConfig) {
 	fi, err := os.Stat(fmt.Sprintf("%s/%s", c.LogFileDir.Value, c.LogFileName.Value))
 

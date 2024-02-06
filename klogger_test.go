@@ -28,7 +28,7 @@ func TestEnter(t *testing.T) {
 
 	m := strings.Split(string(f), " ")
 
-	assert.Equal(t, strings.Trim(constants.LogLevelInfo, " "), m[1])
+	assert.Equal(t, strings.Trim(constants.LogLevelInfo, " "), m[2])
 	assert.Equal(t, method, m[3])
 	assert.Equal(t, constants.Enter, strings.Trim(m[4], "\n"))
 
@@ -40,7 +40,7 @@ func TestEnter(t *testing.T) {
 	assert.NotNil(t, err)
 
 	//Cleanup
-	os.RemoveAll("test-logs")
+	//os.RemoveAll("test-logs")
 
 }
 
@@ -58,7 +58,7 @@ func TestExit(t *testing.T) {
 
 	m := strings.Split(string(f), " ")
 
-	assert.Equal(t, strings.Trim(constants.LogLevelInfo, " "), m[1])
+	assert.Equal(t, strings.Trim(constants.LogLevelInfo, " "), m[2])
 	assert.Equal(t, method, m[3])
 	assert.Equal(t, constants.Exit, strings.Trim(m[4], "\n"))
 
@@ -88,7 +88,7 @@ func TestInfo(t *testing.T) {
 
 	m := strings.Split(string(f), " ")
 
-	assert.Equal(t, strings.Trim(constants.LogLevelInfo, " "), m[1])
+	assert.Equal(t, strings.Trim(constants.LogLevelInfo, " "), m[2])
 	assert.Equal(t, method, m[3])
 
 	//Test with this log level disabled
@@ -117,8 +117,8 @@ func TestDebug(t *testing.T) {
 
 	m := strings.Split(string(f), " ")
 
-	assert.Equal(t, strings.Trim(constants.LogLevelDebug, " "), m[1])
-	assert.Equal(t, method, m[2])
+	assert.Equal(t, strings.Trim(constants.LogLevelDebug, " "), m[2])
+	assert.Equal(t, method, m[3])
 
 	//Test with this log level disabled
 	os.RemoveAll("test-logs")
@@ -146,8 +146,8 @@ func TestTrace(t *testing.T) {
 
 	m := strings.Split(string(f), " ")
 
-	assert.Equal(t, strings.Trim(constants.LogLevelTrace, " "), m[1])
-	assert.Equal(t, method, m[2])
+	assert.Equal(t, strings.Trim(constants.LogLevelTrace, " "), m[2])
+	assert.Equal(t, method, m[3])
 
 	//Test with this log level disabled
 	os.RemoveAll("test-logs")
@@ -175,8 +175,8 @@ func TestWarn(t *testing.T) {
 
 	m := strings.Split(string(f), " ")
 
-	assert.Equal(t, strings.Trim(constants.LogLevelWarn, " "), m[1])
-	assert.Equal(t, method, m[2])
+	assert.Equal(t, strings.Trim(constants.LogLevelWarn, " "), m[2])
+	assert.Equal(t, method, m[3])
 
 	//Test with this log level disabled
 	os.RemoveAll("test-logs")
@@ -204,8 +204,8 @@ func TestError(t *testing.T) {
 
 	m := strings.Split(string(f), " ")
 
-	assert.Equal(t, strings.Trim(constants.LogLevelErr, " "), m[1])
-	assert.Equal(t, method, m[2])
+	assert.Equal(t, strings.Trim(constants.LogLevelErr, " "), m[2])
+	assert.Equal(t, method, m[3])
 
 	//Cleanup
 	os.RemoveAll("test-logs")
@@ -235,7 +235,7 @@ func TestCheckFileRollover(t *testing.T) {
 
 	m := strings.Split(string(f), " ")
 
-	assert.Equal(t, strings.Trim(constants.LogLevelInfo, " "), m[1])
+	assert.Equal(t, strings.Trim(constants.LogLevelInfo, " "), m[2])
 	assert.Equal(t, method, m[3])
 
 	//Cleanup
