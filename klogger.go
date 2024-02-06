@@ -29,12 +29,12 @@ func Exit(method string) {
 
 // Function Error returns a formated string used to log a given error along with a custom error message and declaring which method the error occured in
 func Error(method string, m string, args ...any) {
-	writeLog(constants.StdMsg, method, m, loglevel.Error, args)
+	writeLog(constants.StdMsg, method, m, loglevel.Error, args...)
 }
 
 // Function Warn returns a formated string used to log a given error along with a custom error message and declaring which method the warning occured in
 func Warn(method string, m string, args ...any) {
-	writeLog(constants.StdMsg, method, m, loglevel.Warn, args)
+	writeLog(constants.StdMsg, method, m, loglevel.Warn, args...)
 }
 
 // Function ExitError returns a formated string used to combine the Exit and Error functions together
@@ -45,17 +45,17 @@ func ExitError(method string, msg string, args ...any) {
 
 // Fucntion Info returns a formatted string containing a custom message and the method that the message is coming from
 func Info(method string, m string, args ...any) {
-	writeLog(constants.StdMsg, method, m, loglevel.Info, args)
+	writeLog(constants.StdMsg, method, m, loglevel.Info, args...)
 }
 
 // Fucntion Debug returns a formatted string containing a custom message and the method that the message is coming from
 func Debug(method string, m string, args ...any) {
-	writeLog(constants.StdMsg, method, m, loglevel.Debug, args)
+	writeLog(constants.StdMsg, method, m, loglevel.Debug, args...)
 }
 
 // Function Trace returns a formatted string containing a custom message and the method that the message is coming from
 func Trace(method string, m string, args ...any) {
-	writeLog(constants.StdMsg, method, m, loglevel.Trace, args)
+	writeLog(constants.StdMsg, method, m, loglevel.Trace, args...)
 }
 
 // Function RefreshConfig causes the Klogger module to refresh its config
@@ -75,8 +75,9 @@ func writeLog(mt string, me string, msg string, logl loglevel.LogLevel, args ...
 	}
 
 	//First fill in parameters
-	msg = fmt.Sprintf(msg, args...)
-	msgArr := strings.Split(msg, "\n")
+	lmsg := fmt.Sprintf(msg, args...)
+
+	msgArr := strings.Split(lmsg, "\n")
 	t := time.Now().Format(constants.TimeFormat)
 
 	//Write to File if required

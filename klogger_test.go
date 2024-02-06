@@ -127,7 +127,7 @@ func TestMultiLineLog(t *testing.T) {
 	assert.Equal(t, method, m1[3])
 
 	//Cleanup
-	//os.RemoveAll("test-logs")
+	os.RemoveAll("test-logs")
 
 }
 
