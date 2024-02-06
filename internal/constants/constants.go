@@ -15,7 +15,7 @@ const StdMsg = "%v %s %s %s"
 
 const LogLevelTrace = "TRACE"
 const LogLevelDebug = "DEBUG"
-const LogLevelInfo = "INFO "
+const LogLevelInfo = "INFO"
 const LogLevelWarn = "WARN"
 const LogLevelErr = "ERROR"
 const LogLevelNone = "NONE"

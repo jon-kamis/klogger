@@ -11,8 +11,8 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-const logLevelAllFileName = "properties\\test\\klogger-loglevel-all-properties.yml"
-const logLevelErrorFileName = "properties\\test\\klogger-loglevel-err-properties.yml"
+var logLevelAllFileName = getFilePath() + "properties\\test\\klogger-loglevel-all-properties.yml"
+var logLevelErrorFileName = getFilePath() + "properties\\test\\klogger-loglevel-err-properties.yml"
 
 func TestEnter(t *testing.T) {
 	os.Setenv("KloggerPropFileName", logLevelAllFileName)
@@ -29,8 +29,8 @@ func TestEnter(t *testing.T) {
 	m := strings.Split(string(f), " ")
 
 	assert.Equal(t, strings.Trim(constants.LogLevelInfo, " "), m[1])
-	assert.Equal(t, method, m[3])
-	assert.Equal(t, constants.Enter, strings.Trim(m[4], "\n"))
+	assert.Equal(t, method, m[2])
+	assert.Equal(t, constants.Enter, strings.Trim(m[3], "\n"))
 
 	//Test with this log level disabled
 	os.RemoveAll("test-logs")
@@ -59,8 +59,8 @@ func TestExit(t *testing.T) {
 	m := strings.Split(string(f), " ")
 
 	assert.Equal(t, strings.Trim(constants.LogLevelInfo, " "), m[1])
-	assert.Equal(t, method, m[3])
-	assert.Equal(t, constants.Exit, strings.Trim(m[4], "\n"))
+	assert.Equal(t, method, m[2])
+	assert.Equal(t, constants.Exit, strings.Trim(m[3], "\n"))
 
 	//Test with this log level disabled
 	os.RemoveAll("test-logs")
@@ -89,7 +89,7 @@ func TestInfo(t *testing.T) {
 	m := strings.Split(string(f), " ")
 
 	assert.Equal(t, strings.Trim(constants.LogLevelInfo, " "), m[1])
-	assert.Equal(t, method, m[3])
+	assert.Equal(t, method, m[2])
 
 	//Test with this log level disabled
 	os.RemoveAll("test-logs")
@@ -213,7 +213,7 @@ func TestError(t *testing.T) {
 }
 
 func TestCheckFileRollover(t *testing.T) {
-	os.Setenv("KloggerPropFileName", "properties\\test\\klogger-f-rollover-properties.yml")
+	os.Setenv("KloggerPropFileName", getFilePath() + "properties\\test\\klogger-f-rollover-properties.yml")
 	os.Setenv(constants.UseCacheEnvName, "false")
 
 	os.RemoveAll("test-logs")
@@ -236,8 +236,20 @@ func TestCheckFileRollover(t *testing.T) {
 	m := strings.Split(string(f), " ")
 
 	assert.Equal(t, strings.Trim(constants.LogLevelInfo, " "), m[1])
-	assert.Equal(t, method, m[3])
+	assert.Equal(t, method, m[2])
 
 	//Cleanup
 	os.RemoveAll("test-logs")
+}
+
+func getFilePath() string{
+	fp, err := os.Getwd()
+
+	if err != nil {
+		panic(err.Error())
+	}
+
+	fp = strings.Replace(fp, "pkg", "", -1)
+
+	return fp
 }
