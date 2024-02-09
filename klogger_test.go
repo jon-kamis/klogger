@@ -8,11 +8,21 @@ import (
 	"time"
 
 	"github.com/jon-kamis/klogger/internal/constants"
+	"github.com/jon-kamis/klogger/pkg/loglevel"
 	"github.com/stretchr/testify/assert"
 )
 
 const logLevelAllFileName = "properties\\test\\klogger-loglevel-all-properties.yml"
 const logLevelErrorFileName = "properties\\test\\klogger-loglevel-err-properties.yml"
+
+func TestMain(m *testing.M) {
+	code := m.Run()
+
+	os.RemoveAll("logs")
+	os.RemoveAll("test-logs")
+	os.Exit(code)
+
+}
 
 func TestEnter(t *testing.T) {
 	os.Setenv("KloggerPropFileName", logLevelAllFileName)
@@ -28,7 +38,7 @@ func TestEnter(t *testing.T) {
 
 	m := strings.Split(string(f), " ")
 
-	assert.Equal(t, strings.Trim(constants.LogLevelInfo, " "), m[2])
+	assert.Equal(t, loglevel.Info.String(), m[2])
 	assert.Equal(t, method, m[3])
 	assert.Equal(t, constants.Enter, strings.Trim(m[4], "\n"))
 
@@ -58,7 +68,7 @@ func TestExit(t *testing.T) {
 
 	m := strings.Split(string(f), " ")
 
-	assert.Equal(t, strings.Trim(constants.LogLevelInfo, " "), m[2])
+	assert.Equal(t, loglevel.Info.String(), m[2])
 	assert.Equal(t, method, m[3])
 	assert.Equal(t, constants.Exit, strings.Trim(m[4], "\n"))
 
@@ -88,7 +98,7 @@ func TestInfo(t *testing.T) {
 
 	m := strings.Split(string(f), " ")
 
-	assert.Equal(t, strings.Trim(constants.LogLevelInfo, " "), m[2])
+	assert.Equal(t, loglevel.Info.String(), m[2])
 	assert.Equal(t, method, m[3])
 
 	//Test with this log level disabled
@@ -119,11 +129,11 @@ func TestMultiLineLog(t *testing.T) {
 	assert.Equal(t, 3, len(l))
 
 	m := strings.Split(l[0], " ")
-	assert.Equal(t, strings.Trim(constants.LogLevelInfo, " "), m[2])
+	assert.Equal(t, loglevel.Info.String(), m[2])
 	assert.Equal(t, method, m[3])
 
 	m1 := strings.Split(l[1], " ")
-	assert.Equal(t, strings.Trim(constants.LogLevelInfo, " "), m1[2])
+	assert.Equal(t, loglevel.Info.String(), m1[2])
 	assert.Equal(t, method, m1[3])
 
 	//Cleanup
@@ -145,7 +155,7 @@ func TestDebug(t *testing.T) {
 
 	m := strings.Split(string(f), " ")
 
-	assert.Equal(t, strings.Trim(constants.LogLevelDebug, " "), m[2])
+	assert.Equal(t, loglevel.Debug.String(), m[2])
 	assert.Equal(t, method, m[3])
 
 	//Test with this log level disabled
@@ -174,7 +184,7 @@ func TestTrace(t *testing.T) {
 
 	m := strings.Split(string(f), " ")
 
-	assert.Equal(t, strings.Trim(constants.LogLevelTrace, " "), m[2])
+	assert.Equal(t, loglevel.Trace.String(), m[2])
 	assert.Equal(t, method, m[3])
 
 	//Test with this log level disabled
@@ -203,7 +213,7 @@ func TestWarn(t *testing.T) {
 
 	m := strings.Split(string(f), " ")
 
-	assert.Equal(t, strings.Trim(constants.LogLevelWarn, " "), m[2])
+	assert.Equal(t, loglevel.Warn.String(), m[2])
 	assert.Equal(t, method, m[3])
 
 	//Test with this log level disabled
@@ -232,7 +242,7 @@ func TestError(t *testing.T) {
 
 	m := strings.Split(string(f), " ")
 
-	assert.Equal(t, strings.Trim(constants.LogLevelErr, " "), m[2])
+	assert.Equal(t, loglevel.Error.String(), m[2])
 	assert.Equal(t, method, m[3])
 
 	//Cleanup
@@ -263,7 +273,7 @@ func TestCheckFileRollover(t *testing.T) {
 
 	m := strings.Split(string(f), " ")
 
-	assert.Equal(t, strings.Trim(constants.LogLevelInfo, " "), m[2])
+	assert.Equal(t, loglevel.Info.String(), m[2])
 	assert.Equal(t, method, m[3])
 
 	//Cleanup

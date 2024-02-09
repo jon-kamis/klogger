@@ -6,25 +6,38 @@ import (
 	"os"
 	"strconv"
 	"strings"
-	"sync/atomic"
 	"time"
 
 	"github.com/jon-kamis/klogger/internal/config"
 	"github.com/jon-kamis/klogger/internal/constants"
-	"github.com/jon-kamis/klogger/internal/enum/loglevel"
+	"github.com/jon-kamis/klogger/pkg/loglevel"
 )
 
-var ll atomic.Pointer[loglevel.LogLevel]
-var lfl atomic.Pointer[loglevel.LogLevel]
-
 // Function Enter returns a formated string used to declare where a method begins execution
-func Enter(method string) {
-	writeLog(constants.StdMsg, method, constants.Enter, loglevel.Info)
+// method - The method to write an enter log for
+// l - The log levels to write to. If this is not set than the default log level for Enter logs is used
+func Enter(method string, l ...loglevel.LogLevel) {
+
+	if len(l) > 0 {
+		for _, ll := range l {
+			writeLog(constants.StdMsg, method, constants.Enter, ll)
+		}
+	} else {
+		writeLog(constants.StdMsg, method, constants.Enter, loglevel.Info)
+	}
 }
 
 // Function Exit returns a formated string used to declare where a method ends execution
-func Exit(method string) {
-	writeLog(constants.StdMsg, method, constants.Exit, loglevel.Info)
+// method - The method to write an enter log for
+// l - The log levels to write to. If this is not set than the default log level for Enter logs is used
+func Exit(method string, l ...loglevel.LogLevel) {
+	if len(l) > 0 {
+		for _, ll := range l {
+			writeLog(constants.StdMsg, method, constants.Exit, ll)
+		}
+	} else {
+		writeLog(constants.StdMsg, method, constants.Exit, loglevel.Info)
+	}
 }
 
 // Function Error returns a formated string used to log a given error along with a custom error message and declaring which method the error occured in
@@ -69,8 +82,10 @@ func RefreshConfig() {
 // msg - message to log
 func writeLog(mt string, me string, msg string, logl loglevel.LogLevel, args ...any) {
 
+	c := config.GetConfig()
+
 	//Check if anything will be logged by this command
-	if logl < getLogLevel() && logl < getLogFileLevel() {
+	if logl < c.LogLevel && logl < c.LogFileLevel {
 		return
 	}
 
@@ -81,7 +96,7 @@ func writeLog(mt string, me string, msg string, logl loglevel.LogLevel, args ...
 	t := time.Now().Format(constants.TimeFormat)
 
 	//Write to File if required
-	if logl >= getLogLevel() {
+	if logl >= config.GetConfig().LogLevel {
 
 		for _, m := range msgArr {
 			l := fmt.Sprintf(mt, t, logl, me, m)
@@ -90,52 +105,12 @@ func writeLog(mt string, me string, msg string, logl loglevel.LogLevel, args ...
 
 	}
 
-	if logl >= getLogFileLevel() {
+	if logl >= config.GetConfig().LogFileLevel {
 		for _, m := range msgArr {
 			l := fmt.Sprintf(mt, t, logl, me, m)
 			writeLogToFile(l)
 		}
 	}
-}
-
-// Function getLogLevel attempts to read in the log level from config
-func getLogLevel() loglevel.LogLevel {
-
-	cached := ll.Load()
-	if cached != nil && os.Getenv(constants.UseCacheEnvName) != "false" {
-		return *cached
-	}
-
-	logl, err := loglevel.GetLogLevelFromInterface(config.GetConfig().LogLevel.Value)
-
-	if err != nil {
-		panic("log level config is invalid!")
-	}
-
-	cached = &logl
-	ll.Store(cached)
-
-	return *cached
-}
-
-// Function getLogFileLevel attempts to read in the log file level from config
-func getLogFileLevel() loglevel.LogLevel {
-
-	cached := lfl.Load()
-	if cached != nil && os.Getenv(constants.UseCacheEnvName) != "false" {
-		return *cached
-	}
-
-	logfl, err := loglevel.GetLogLevelFromInterface(config.GetConfig().LogFileLevel.Value)
-
-	if err != nil {
-		panic("log level config is invalid!")
-	}
-
-	cached = &logfl
-	lfl.Store(cached)
-
-	return *cached
 }
 
 // Function WriteLogToFile writes a log to file based on config settings
@@ -144,17 +119,11 @@ func writeLogToFile(msg string) {
 
 	c := config.GetConfig()
 
-	fd, ok := c.LogFileDir.Value.(string)
+	_ = os.Mkdir(c.LogFileDir, os.ModePerm)
 
-	if !ok {
-		panic("log file directory is invalid!")
-	}
+	fn := fmt.Sprintf("%s/%s", c.LogFileDir, c.LogFileName)
 
-	_ = os.Mkdir(fd, os.ModePerm)
-
-	fn := fmt.Sprintf("%s/%s", fd, c.LogFileName.Value)
-
-	if c.DoRollover.Value == true {
+	if c.DoRollover {
 		checkFileRollover(c)
 	}
 
@@ -171,50 +140,45 @@ func writeLogToFile(msg string) {
 
 // Function checkFileRollover determines if a file should be rolled over prior to writing to it
 func checkFileRollover(c config.KloggerConfig) {
-	fi, err := os.Stat(fmt.Sprintf("%s/%s", c.LogFileDir.Value, c.LogFileName.Value))
+	fi, err := os.Stat(fmt.Sprintf("%s/%s", c.LogFileDir, c.LogFileName))
 
-	rs, ok := c.RolloverSize.Value.(int)
+	if err == nil && c.DoSizeRollover && fi.Size() > c.RolloverSize {
 
-	if err == nil && c.DoSizeRollover.Value == true && ok && fi.Size() > int64(rs) {
-		d, ok := c.LogFileDir.Value.(string)
+		files, err := os.ReadDir(c.LogFileDir)
 
-		if ok {
-			files, err := os.ReadDir(d)
+		if err != nil {
+			return
+		}
 
-			if err != nil {
-				return
-			}
+		dtStr := time.Now().Format("2006-01-02")
+		highestNum := 0
 
-			dtStr := time.Now().Format("2006-01-02")
-			highestNum := 0
+		for _, file := range files {
 
-			for _, file := range files {
+			if strings.Contains(file.Name(), dtStr) {
+				name := file.Name()
+				name = name[:strings.IndexByte(name, '.')]
+				num, err := strconv.Atoi(strings.Split(name, "_")[2])
 
-				if strings.Contains(file.Name(), dtStr) {
-					name := file.Name()
-					name = name[:strings.IndexByte(name, '.')]
-					num, err := strconv.Atoi(strings.Split(name, "_")[2])
+				if err != nil {
+					fmt.Printf("error occured: %v\n", err)
+					return
+				}
 
-					if err != nil {
-						fmt.Printf("error occured: %v\n", err)
-						return
-					}
-
-					if num > highestNum {
-						highestNum = num
-					}
+				if num > highestNum {
+					highestNum = num
 				}
 			}
-			highestNum += 1
-
-			//Original File Name
-			ofn := fmt.Sprintf("%s/%s", c.LogFileDir.Value, c.LogFileName.Value)
-
-			//New File Name
-			fp := strings.Split(ofn, ".") //File Parts, 0 -> File Path and Name, 1 -> File Extension
-			nfn := fmt.Sprintf("%s_%s_%d.%s", fp[0], dtStr, highestNum, fp[1])
-
-			os.Rename(ofn, nfn)
 		}
+		highestNum += 1
+
+		//Original File Name
+		ofn := fmt.Sprintf("%s/%s", c.LogFileDir, c.LogFileName)
+
+		//New File Name
+		fp := strings.Split(ofn, ".") //File Parts, 0 -> File Path and Name, 1 -> File Extension
+		nfn := fmt.Sprintf("%s_%s_%d.%s", fp[0], dtStr, highestNum, fp[1])
+
+		os.Rename(ofn, nfn)
 	}
 }

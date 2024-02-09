@@ -2,11 +2,10 @@ package loglevel
 
 import (
 	"errors"
-
-	"github.com/jon-kamis/klogger/internal/constants"
 )
 
-type LogLevel int64
+// Type LogLevel is an int enum used to determine which logs should and should not be written by a configuration, as well as what value to log for each level
+type LogLevel int
 
 const (
 	All LogLevel = iota
@@ -18,25 +17,34 @@ const (
 	None
 )
 
+const logLevelTrace = "TRACE"
+const logLevelDebug = "DEBUG"
+const logLevelInfo = "INFO"
+const logLevelWarn = "WARN"
+const logLevelErr = "ERROR"
+const logLevelNone = "NONE"
+
+// Function String is used when printing a LogLevel Object
 func (l LogLevel) String() string {
 	switch l {
 	case Trace:
-		return constants.LogLevelTrace
+		return logLevelTrace
 	case Debug:
-		return constants.LogLevelDebug
+		return logLevelDebug
 	case Info:
-		return constants.LogLevelInfo
+		return logLevelInfo
 	case Warn:
-		return constants.LogLevelWarn
+		return logLevelWarn
 	case Error:
-		return constants.LogLevelErr
+		return logLevelErr
 	case None:
-		return constants.LogLevelNone
+		return logLevelNone
 	}
 	return "UNKWN"
 }
 
-func GetLogLevel(i int64) LogLevel {
+// Function GetLogLevel accepts an int argument and returns the corresponding LogLevel for that value if one exists or defaults to All
+func GetLogLevel(i int) LogLevel {
 	switch i {
 	case 0:
 		return All

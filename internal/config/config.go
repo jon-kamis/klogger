@@ -1,65 +1,71 @@
 package config
 
 import (
+	"os"
+	"sync/atomic"
+
 	"github.com/jon-kamis/klogger/internal/constants"
-	"github.com/jon-kamis/klogger/internal/enum/loglevel"
+	"github.com/jon-kamis/klogger/internal/properties"
+	"github.com/jon-kamis/klogger/pkg/loglevel"
 )
-
-// Type Property is a pairing of property names and their default values
-type Property struct {
-	Name  string
-	Value interface{}
-}
-
-// Type PropertyFileData is a struct representing a property file data for this go module
-type Config struct {
-	Klogger map[string]interface{}
-}
 
 // Type KloggerConfig is a struct holding properties for the application
 type KloggerConfig struct {
-	PropFileName   Property
-	LogFileName    Property
-	LogFileDir     Property
-	DoRollover     Property
-	DoSizeRollover Property
-	RolloverSize   Property
-	LogLevel       Property
-	LogFileLevel   Property
+	PropFileName   string
+	LogFileName    string
+	LogFileDir     string
+	DoRollover     bool
+	DoSizeRollover bool
+	RolloverSize   int64
+	LogLevel       loglevel.LogLevel
+	LogFileLevel   loglevel.LogLevel
+	EnterLogLevel  loglevel.LogLevel
+	ExitLogLevel   loglevel.LogLevel
 }
 
-// Function GetDefaultConfig returns a FinanceManagerConfig object containing the default values for each environment variable
-var DefaultConfig = KloggerConfig{
-	PropFileName: Property{
-		Name:  "KloggerPropFileName",
-		Value: constants.DefaultPropFileName,
-	},
-	LogFileName: Property{
-		Name:  "LogFileName",
-		Value: constants.DefaultLogFileName,
-	},
-	LogFileDir: Property{
-		Name:  "LogFileDir",
-		Value: constants.DefaultLogFileDir,
-	},
-	DoRollover: Property{
-		Name:  "DoRollover",
-		Value: constants.DefaultDoRollover,
-	},
-	DoSizeRollover: Property{
-		Name:  "DoSizeRollover",
-		Value: constants.DefaultDoSizeRollover,
-	},
-	RolloverSize: Property{
-		Name:  "RolloverSize",
-		Value: constants.DefaultRolloverSize,
-	},
-	LogLevel: Property{
-		Name:  "LogLevel",
-		Value: loglevel.Debug,
-	},
-	LogFileLevel: Property{
-		Name:  "LogFileLevel",
-		Value: loglevel.Debug,
-	},
+var c atomic.Pointer[KloggerConfig] //Pointer cache
+
+// Function GetConfig Caches and returns the config for the logger unless told not to do so for testing
+func GetConfig() KloggerConfig {
+	cached := c.Load()
+	if cached != nil && os.Getenv(constants.UseCacheEnvName) != "false" {
+		return *cached
+	}
+
+	config := loadConfig()
+	cached = &config
+	c.Store(cached)
+
+	return *cached
+}
+
+// Function RefreshConfig causes Klogger module to wipe its cache and refresh its configuration
+func RefreshConfig() KloggerConfig {
+
+	config := loadConfig()
+	cached := &config
+	c.Store(cached)
+
+	return *cached
+}
+
+func loadConfig() KloggerConfig {
+	//Read in Config
+	var config KloggerConfig
+
+	//Load in properties
+	props := properties.GetProperties()
+
+	//Read in the rest of the props
+	config.LogFileDir = properties.GetPropString(props.LogFileDir)
+	config.LogFileName = properties.GetPropString(props.LogFileName)
+	config.DoRollover = properties.GetPropBool(props.DoRollover)
+	config.DoSizeRollover = properties.GetPropBool(props.DoSizeRollover)
+	config.RolloverSize = int64(properties.GetPropInt(props.RolloverSize))
+	config.LogFileLevel = properties.GetPropLogLevel(props.LogFileLevel)
+	config.LogLevel = properties.GetPropLogLevel(props.LogLevel)
+	config.EnterLogLevel = properties.GetPropLogLevel(props.EnterLogLevel)
+	config.ExitLogLevel = properties.GetPropLogLevel(props.ExitLogLevel)
+
+	return config
 }
