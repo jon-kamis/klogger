@@ -11,16 +11,17 @@ import (
 
 // Type KloggerConfig is a struct holding properties for the application
 type KloggerConfig struct {
-	PropFileName   string
-	LogFileName    string
-	LogFileDir     string
-	DoRollover     bool
-	DoSizeRollover bool
-	RolloverSize   int64
-	LogLevel       loglevel.LogLevel
-	LogFileLevel   loglevel.LogLevel
-	EnterLogLevel  loglevel.LogLevel
-	ExitLogLevel   loglevel.LogLevel
+	PropFileName    string
+	LogFileName     string
+	LogFileDir      string
+	DoRollover      bool
+	DoSizeRollover  bool
+	RolloverSize    int64
+	LogLevel        loglevel.LogLevel
+	LogFileLevel    loglevel.LogLevel
+	EnterLogLevel   loglevel.LogLevel
+	ExitLogLevel    loglevel.LogLevel
+	DoEnterExitLogs bool
 }
 
 var c atomic.Pointer[KloggerConfig] //Pointer cache
@@ -66,6 +67,7 @@ func loadConfig() KloggerConfig {
 	config.LogLevel = properties.GetPropLogLevel(props.LogLevel)
 	config.EnterLogLevel = properties.GetPropLogLevel(props.EnterLogLevel)
 	config.ExitLogLevel = properties.GetPropLogLevel(props.ExitLogLevel)
+	config.DoEnterExitLogs = properties.GetPropBool(props.DoEnterExitLogs)
 
 	return config
 }

@@ -18,6 +18,10 @@ import (
 // l - The log levels to write to. If this is not set than the default log level for Enter logs is used
 func Enter(method string, l ...loglevel.LogLevel) {
 
+	if !config.GetConfig().DoEnterExitLogs {
+		return
+	}
+
 	if len(l) > 0 {
 		for _, ll := range l {
 			writeLog(constants.StdMsg, method, constants.Enter, ll)
@@ -31,6 +35,11 @@ func Enter(method string, l ...loglevel.LogLevel) {
 // method - The method to write an enter log for
 // l - The log levels to write to. If this is not set than the default log level for Enter logs is used
 func Exit(method string, l ...loglevel.LogLevel) {
+
+	if !config.GetConfig().DoEnterExitLogs {
+		return
+	}
+
 	if len(l) > 0 {
 		for _, ll := range l {
 			writeLog(constants.StdMsg, method, constants.Exit, ll)

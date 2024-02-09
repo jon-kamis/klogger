@@ -12,6 +12,7 @@ const LogLevel = "LogLevel"
 const LogFileLevel = "LogFileLevel"
 const EnterLogLevel = "EnterLogLevel"
 const ExitLogLevel = "ExitLogLevel"
+const DoEnterExitLogs = "DoEnterExitLogs"
 
 const EnvPrefix = "Klogger"
 
@@ -24,6 +25,7 @@ const DefaultLogLevelValue = loglevel.Debug
 const DefaultLogFileLevelValue = loglevel.Debug
 const DefaultEnterLogLevelValue = loglevel.Info
 const DefaultExitLogLevelValue = loglevel.Info
+const DefaultDoEnterExitLogs = true
 
 const TimeFormat = "2006-01-02 15:04:05"
 

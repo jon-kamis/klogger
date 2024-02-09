@@ -23,16 +23,17 @@ type Property struct {
 
 // Type KloggerProperties is a struct holding properties for the application
 type KloggerProperties struct {
-	PropFileName   Property
-	LogFileName    Property
-	LogFileDir     Property
-	DoRollover     Property
-	DoSizeRollover Property
-	RolloverSize   Property
-	LogLevel       Property
-	LogFileLevel   Property
-	EnterLogLevel  Property
-	ExitLogLevel   Property
+	PropFileName    Property
+	LogFileName     Property
+	LogFileDir      Property
+	DoRollover      Property
+	DoSizeRollover  Property
+	RolloverSize    Property
+	LogLevel        Property
+	LogFileLevel    Property
+	EnterLogLevel   Property
+	ExitLogLevel    Property
+	DoEnterExitLogs Property
 }
 
 type Number interface {
@@ -81,6 +82,10 @@ var DefaultProperties = KloggerProperties{
 		Name:  constants.ExitLogLevel,
 		Value: constants.DefaultExitLogLevelValue,
 	},
+	DoEnterExitLogs: Property{
+		Name:  constants.DoEnterExitLogs,
+		Value: constants.DefaultDoEnterExitLogs,
+	},
 }
 
 // Function GetProperties loads in all properties, first from env variables and then from a property file
@@ -127,6 +132,7 @@ func GetProperties() KloggerProperties {
 	kp.LogLevel = loadFromEnvVariable(DefaultProperties.LogLevel)
 	kp.EnterLogLevel = loadFromEnvVariable(DefaultProperties.EnterLogLevel)
 	kp.ExitLogLevel = loadFromEnvVariable(DefaultProperties.ExitLogLevel)
+	kp.DoEnterExitLogs = loadFromEnvVariable(DefaultProperties.DoEnterExitLogs)
 
 	//Next attempt to load each value from the property file if it exists
 	if fExists {
@@ -139,6 +145,7 @@ func GetProperties() KloggerProperties {
 		kp.LogLevel = loadProperty(DefaultProperties.LogLevel, pfd)
 		kp.EnterLogLevel = loadProperty(DefaultProperties.EnterLogLevel, pfd)
 		kp.ExitLogLevel = loadProperty(DefaultProperties.ExitLogLevel, pfd)
+		kp.DoEnterExitLogs = loadProperty(DefaultProperties.DoEnterExitLogs, pfd)
 	}
 
 	return kp
@@ -196,7 +203,7 @@ func GetPropLogLevel(p Property) loglevel.LogLevel {
 
 	//First check if allready typed to LogLevel
 	ll, ok := p.Value.(loglevel.LogLevel)
-	
+
 	if ok {
 		return ll
 	}
