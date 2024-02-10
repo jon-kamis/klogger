@@ -15,10 +15,11 @@ import (
 // Function Enter returns a formated string used to declare where a method begins execution
 // method - The method to write an enter log for
 // l - The log levels to write to. If this is not set than the default log level for Enter logs is used
-func Enter(method string, l ...loglevel.LogLevel) {
+// returns the time in which the log is written to track exit times if desired
+func Enter(method string, l ...loglevel.LogLevel) time.Time {
 
 	if !config.GetConfig().DoEnterExitLogs {
-		return
+		return time.Now()
 	}
 
 	if len(l) > 0 {
@@ -28,6 +29,8 @@ func Enter(method string, l ...loglevel.LogLevel) {
 	} else {
 		writeLog(constants.StdMsg, method, constants.Enter, loglevel.Info)
 	}
+
+	return time.Now()
 }
 
 // Function Exit returns a formated string used to declare where a method ends execution
