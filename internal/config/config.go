@@ -16,6 +16,7 @@ type KloggerConfig struct {
 	LogFileDir      string
 	DoRollover      bool
 	DoSizeRollover  bool
+	DoDateRollover  bool
 	RolloverSize    int64
 	LogLevel        loglevel.LogLevel
 	LogFileLevel    loglevel.LogLevel
@@ -62,6 +63,7 @@ func loadConfig() KloggerConfig {
 	config.LogFileName = properties.GetPropString(props.LogFileName)
 	config.DoRollover = properties.GetPropBool(props.DoRollover)
 	config.DoSizeRollover = properties.GetPropBool(props.DoSizeRollover)
+	config.DoDateRollover = properties.GetPropBool(props.DoDateRollover)
 	config.RolloverSize = int64(properties.GetPropInt(props.RolloverSize))
 	config.LogFileLevel = properties.GetPropLogLevel(props.LogFileLevel)
 	config.LogLevel = properties.GetPropLogLevel(props.LogLevel)

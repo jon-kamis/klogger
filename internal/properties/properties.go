@@ -28,6 +28,7 @@ type KloggerProperties struct {
 	LogFileDir      Property
 	DoRollover      Property
 	DoSizeRollover  Property
+	DoDateRollover  Property
 	RolloverSize    Property
 	LogLevel        Property
 	LogFileLevel    Property
@@ -57,6 +58,10 @@ var DefaultProperties = KloggerProperties{
 	DoRollover: Property{
 		Name:  constants.DoRollover,
 		Value: constants.DefaultDoRolloverValue,
+	},
+	DoDateRollover: Property{
+		Name:  constants.DoDateRollover,
+		Value: constants.DefaultDoDateRolloverValue,
 	},
 	DoSizeRollover: Property{
 		Name:  constants.DoSizeRollover,
@@ -91,7 +96,7 @@ var DefaultProperties = KloggerProperties{
 // Function GetProperties loads in all properties, first from env variables and then from a property file
 func GetProperties() KloggerProperties {
 
-	var kp KloggerProperties
+	kp := DefaultProperties
 	var pfd PropertyFileData
 	fExists := true
 
@@ -123,29 +128,31 @@ func GetProperties() KloggerProperties {
 	}
 
 	//First attempt to load each value from the environment
-	kp.LogFileDir = loadFromEnvVariable(DefaultProperties.LogFileDir)
-	kp.LogFileName = loadFromEnvVariable(DefaultProperties.LogFileName)
-	kp.DoRollover = loadFromEnvVariable(DefaultProperties.DoRollover)
-	kp.DoSizeRollover = loadFromEnvVariable(DefaultProperties.DoSizeRollover)
-	kp.RolloverSize = loadFromEnvVariable(DefaultProperties.RolloverSize)
-	kp.LogFileLevel = loadFromEnvVariable(DefaultProperties.LogFileLevel)
-	kp.LogLevel = loadFromEnvVariable(DefaultProperties.LogLevel)
-	kp.EnterLogLevel = loadFromEnvVariable(DefaultProperties.EnterLogLevel)
-	kp.ExitLogLevel = loadFromEnvVariable(DefaultProperties.ExitLogLevel)
-	kp.DoEnterExitLogs = loadFromEnvVariable(DefaultProperties.DoEnterExitLogs)
+	kp.LogFileDir = loadFromEnvVariable(kp.LogFileDir)
+	kp.LogFileName = loadFromEnvVariable(kp.LogFileName)
+	kp.DoRollover = loadFromEnvVariable(kp.DoRollover)
+	kp.DoSizeRollover = loadFromEnvVariable(kp.DoSizeRollover)
+	kp.DoDateRollover = loadFromEnvVariable(kp.DoDateRollover)
+	kp.RolloverSize = loadFromEnvVariable(kp.RolloverSize)
+	kp.LogFileLevel = loadFromEnvVariable(kp.LogFileLevel)
+	kp.LogLevel = loadFromEnvVariable(kp.LogLevel)
+	kp.EnterLogLevel = loadFromEnvVariable(kp.EnterLogLevel)
+	kp.ExitLogLevel = loadFromEnvVariable(kp.ExitLogLevel)
+	kp.DoEnterExitLogs = loadFromEnvVariable(kp.DoEnterExitLogs)
 
 	//Next attempt to load each value from the property file if it exists
 	if fExists {
-		kp.LogFileDir = loadProperty(DefaultProperties.LogFileDir, pfd)
-		kp.LogFileName = loadProperty(DefaultProperties.LogFileName, pfd)
-		kp.DoRollover = loadProperty(DefaultProperties.DoRollover, pfd)
-		kp.DoSizeRollover = loadProperty(DefaultProperties.DoSizeRollover, pfd)
-		kp.RolloverSize = loadProperty(DefaultProperties.RolloverSize, pfd)
-		kp.LogFileLevel = loadProperty(DefaultProperties.LogFileLevel, pfd)
-		kp.LogLevel = loadProperty(DefaultProperties.LogLevel, pfd)
-		kp.EnterLogLevel = loadProperty(DefaultProperties.EnterLogLevel, pfd)
-		kp.ExitLogLevel = loadProperty(DefaultProperties.ExitLogLevel, pfd)
-		kp.DoEnterExitLogs = loadProperty(DefaultProperties.DoEnterExitLogs, pfd)
+		kp.LogFileDir = loadProperty(kp.LogFileDir, pfd)
+		kp.LogFileName = loadProperty(kp.LogFileName, pfd)
+		kp.DoRollover = loadProperty(kp.DoRollover, pfd)
+		kp.DoDateRollover = loadProperty(kp.DoDateRollover, pfd)
+		kp.DoSizeRollover = loadProperty(kp.DoSizeRollover, pfd)
+		kp.RolloverSize = loadProperty(kp.RolloverSize, pfd)
+		kp.LogFileLevel = loadProperty(kp.LogFileLevel, pfd)
+		kp.LogLevel = loadProperty(kp.LogLevel, pfd)
+		kp.EnterLogLevel = loadProperty(kp.EnterLogLevel, pfd)
+		kp.ExitLogLevel = loadProperty(kp.ExitLogLevel, pfd)
+		kp.DoEnterExitLogs = loadProperty(kp.DoEnterExitLogs, pfd)
 	}
 
 	return kp
@@ -173,6 +180,7 @@ func loadProperty(p Property, pfd PropertyFileData) Property {
 
 		fmt.Printf("[Klogger] Read property file entry for property: %s\n", p.Name)
 		p.Value = pfd.Klogger[p.Name]
+		p.isLoaded = true
 	}
 
 	return p

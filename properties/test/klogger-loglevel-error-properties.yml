@@ -1,5 +1,5 @@
 klogger:
-  logFileName: "application-test.log"
-  logFileDir: "test-logs"
-  logLevel: 0
-  logFileLevel: 6
+  LogFileName: "application-test.log"
+  LogFileDir: "test-logs"
+  LogLevel: 0
+  LogFileLevel: 6

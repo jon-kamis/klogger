@@ -8,26 +8,18 @@ import (
 	"time"
 
 	"github.com/jon-kamis/klogger/internal/constants"
+	"github.com/jon-kamis/klogger/internal/filelogger"
 	"github.com/jon-kamis/klogger/pkg/loglevel"
 	"github.com/stretchr/testify/assert"
 )
 
 const logLevelAllFileName = "properties\\test\\klogger-loglevel-all-properties.yml"
-const logLevelErrorFileName = "properties\\test\\klogger-loglevel-err-properties.yml"
-
-func TestMain(m *testing.M) {
-	code := m.Run()
-
-	os.RemoveAll("logs")
-	os.RemoveAll("test-logs")
-	os.Exit(code)
-
-}
+const logLevelErrorFileName = "properties\\test\\klogger-loglevel-error-properties.yml"
 
 func TestEnter(t *testing.T) {
 	os.Setenv("KloggerPropFileName", logLevelAllFileName)
 	os.Setenv(constants.UseCacheEnvName, "false")
-
+	filelogger.CloseFile()
 	os.RemoveAll("test-logs")
 
 	method := "TestInfo"
@@ -43,21 +35,22 @@ func TestEnter(t *testing.T) {
 	assert.Equal(t, constants.Enter, strings.Trim(m[4], "\n"))
 
 	//Test with this log level disabled
-	os.RemoveAll("test-logs")
 	os.Setenv("KloggerPropFileName", logLevelErrorFileName)
+	filelogger.CloseFile()
+	os.RemoveAll("test-logs")
+
+	os.Setenv("KloggerPropFileName", logLevelErrorFileName)
+
 	Enter(method)
 	_, err = os.ReadFile("test-logs/application-test.log")
 	assert.NotNil(t, err)
-
-	//Cleanup
-	os.RemoveAll("test-logs")
 
 }
 
 func TestExit(t *testing.T) {
 	os.Setenv("KloggerPropFileName", logLevelAllFileName)
 	os.Setenv(constants.UseCacheEnvName, "false")
-
+	filelogger.CloseFile()
 	os.RemoveAll("test-logs")
 
 	method := "TestInfo"
@@ -73,21 +66,22 @@ func TestExit(t *testing.T) {
 	assert.Equal(t, constants.Exit, strings.Trim(m[4], "\n"))
 
 	//Test with this log level disabled
-	os.RemoveAll("test-logs")
 	os.Setenv("KloggerPropFileName", logLevelErrorFileName)
+	filelogger.CloseFile()
+	os.RemoveAll("test-logs")
+
 	Exit(method)
 	_, err = os.ReadFile("test-logs/application-test.log")
 	assert.NotNil(t, err)
 
 	//Cleanup
 	os.RemoveAll("test-logs")
-
 }
 
 func TestInfo(t *testing.T) {
 	os.Setenv("KloggerPropFileName", logLevelAllFileName)
 	os.Setenv(constants.UseCacheEnvName, "false")
-
+	filelogger.CloseFile()
 	os.RemoveAll("test-logs")
 
 	method := "TestInfo"
@@ -102,21 +96,22 @@ func TestInfo(t *testing.T) {
 	assert.Equal(t, method, m[3])
 
 	//Test with this log level disabled
-	os.RemoveAll("test-logs")
 	os.Setenv("KloggerPropFileName", logLevelErrorFileName)
+	filelogger.CloseFile()
+	os.RemoveAll("test-logs")
+
 	Info(method, "Testing info message with added messages: %s and %s", "m1", "m2")
 	_, err = os.ReadFile("test-logs/application-test.log")
 	assert.NotNil(t, err)
 
 	//Cleanup
 	os.RemoveAll("test-logs")
-
 }
 
 func TestMultiLineLog(t *testing.T) {
 	os.Setenv("KloggerPropFileName", logLevelAllFileName)
 	os.Setenv(constants.UseCacheEnvName, "false")
-
+	filelogger.CloseFile()
 	os.RemoveAll("test-logs")
 
 	method := "TestInfo"
@@ -138,13 +133,12 @@ func TestMultiLineLog(t *testing.T) {
 
 	//Cleanup
 	os.RemoveAll("test-logs")
-
 }
 
 func TestDebug(t *testing.T) {
 	os.Setenv("KloggerPropFileName", logLevelAllFileName)
 	os.Setenv(constants.UseCacheEnvName, "false")
-
+	filelogger.CloseFile()
 	os.RemoveAll("test-logs")
 
 	method := "TestInfo"
@@ -159,21 +153,22 @@ func TestDebug(t *testing.T) {
 	assert.Equal(t, method, m[3])
 
 	//Test with this log level disabled
-	os.RemoveAll("test-logs")
 	os.Setenv("KloggerPropFileName", logLevelErrorFileName)
+	filelogger.CloseFile()
+	os.RemoveAll("test-logs")
+
 	Debug(method, "Testing info message with added messages: %s and %s", "m1", "m2")
 	_, err = os.ReadFile("test-logs/application-test.log")
 	assert.NotNil(t, err)
 
 	//Cleanup
 	os.RemoveAll("test-logs")
-
 }
 
 func TestTrace(t *testing.T) {
 	os.Setenv("KloggerPropFileName", logLevelAllFileName)
 	os.Setenv(constants.UseCacheEnvName, "false")
-
+	filelogger.CloseFile()
 	os.RemoveAll("test-logs")
 
 	method := "TestInfo"
@@ -188,21 +183,22 @@ func TestTrace(t *testing.T) {
 	assert.Equal(t, method, m[3])
 
 	//Test with this log level disabled
-	os.RemoveAll("test-logs")
 	os.Setenv("KloggerPropFileName", logLevelErrorFileName)
+	filelogger.CloseFile()
+	os.RemoveAll("test-logs")
+
 	Trace(method, "Testing info message with added messages: %s and %s", "m1", "m2")
 	_, err = os.ReadFile("test-logs/application-test.log")
 	assert.NotNil(t, err)
 
 	//Cleanup
 	os.RemoveAll("test-logs")
-
 }
 
 func TestWarn(t *testing.T) {
 	os.Setenv("KloggerPropFileName", logLevelAllFileName)
 	os.Setenv(constants.UseCacheEnvName, "false")
-
+	filelogger.CloseFile()
 	os.RemoveAll("test-logs")
 
 	method := "TestInfo"
@@ -217,25 +213,25 @@ func TestWarn(t *testing.T) {
 	assert.Equal(t, method, m[3])
 
 	//Test with this log level disabled
-	os.RemoveAll("test-logs")
 	os.Setenv("KloggerPropFileName", logLevelErrorFileName)
+	filelogger.CloseFile()
+	os.RemoveAll("test-logs")
 	Warn(method, "Testing info message with added messages: %s and %s", "m1", "m2")
 	_, err = os.ReadFile("test-logs/application-test.log")
 	assert.NotNil(t, err)
 
 	//Cleanup
 	os.RemoveAll("test-logs")
-
 }
 
 func TestError(t *testing.T) {
 	os.Setenv("KloggerPropFileName", logLevelAllFileName)
 	os.Setenv(constants.UseCacheEnvName, "false")
-
+	filelogger.CloseFile()
 	os.RemoveAll("test-logs")
 
 	method := "TestInfo"
-	Error(method, "Testing trace message with added messages: %s and %s", "m1", "m2")
+	Error(method, "Testing error message with added messages: %s and %s", "m1", "m2")
 
 	f, err := os.ReadFile("test-logs/application-test.log")
 	assert.Nil(t, err)
@@ -247,13 +243,12 @@ func TestError(t *testing.T) {
 
 	//Cleanup
 	os.RemoveAll("test-logs")
-
 }
 
 func TestCheckFileRollover(t *testing.T) {
 	os.Setenv("KloggerPropFileName", "properties\\test\\klogger-f-rollover-properties.yml")
 	os.Setenv(constants.UseCacheEnvName, "false")
-
+	filelogger.CloseFile()
 	os.RemoveAll("test-logs")
 
 	method := "TestCheckFileRollover"

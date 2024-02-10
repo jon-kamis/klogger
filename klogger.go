@@ -3,13 +3,12 @@ package klogger
 
 import (
 	"fmt"
-	"os"
-	"strconv"
 	"strings"
 	"time"
 
 	"github.com/jon-kamis/klogger/internal/config"
 	"github.com/jon-kamis/klogger/internal/constants"
+	"github.com/jon-kamis/klogger/internal/filelogger"
 	"github.com/jon-kamis/klogger/pkg/loglevel"
 )
 
@@ -117,77 +116,7 @@ func writeLog(mt string, me string, msg string, logl loglevel.LogLevel, args ...
 	if logl >= config.GetConfig().LogFileLevel {
 		for _, m := range msgArr {
 			l := fmt.Sprintf(mt, t, logl, me, m)
-			writeLogToFile(l)
+			filelogger.WriteLogToFile(l)
 		}
-	}
-}
-
-// Function WriteLogToFile writes a log to file based on config settings
-// m - message to log
-func writeLogToFile(msg string) {
-
-	c := config.GetConfig()
-
-	_ = os.Mkdir(c.LogFileDir, os.ModePerm)
-
-	fn := fmt.Sprintf("%s/%s", c.LogFileDir, c.LogFileName)
-
-	if c.DoRollover {
-		checkFileRollover(c)
-	}
-
-	f, err := os.OpenFile(fn, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-
-	if err != nil {
-		fmt.Printf("error occured %v\n", err)
-		return
-	}
-
-	f.Write([]byte(msg + "\n"))
-	f.Close()
-}
-
-// Function checkFileRollover determines if a file should be rolled over prior to writing to it
-func checkFileRollover(c config.KloggerConfig) {
-	fi, err := os.Stat(fmt.Sprintf("%s/%s", c.LogFileDir, c.LogFileName))
-
-	if err == nil && c.DoSizeRollover && fi.Size() > c.RolloverSize {
-
-		files, err := os.ReadDir(c.LogFileDir)
-
-		if err != nil {
-			return
-		}
-
-		dtStr := time.Now().Format("2006-01-02")
-		highestNum := 0
-
-		for _, file := range files {
-
-			if strings.Contains(file.Name(), dtStr) {
-				name := file.Name()
-				name = name[:strings.IndexByte(name, '.')]
-				num, err := strconv.Atoi(strings.Split(name, "_")[2])
-
-				if err != nil {
-					fmt.Printf("error occured: %v\n", err)
-					return
-				}
-
-				if num > highestNum {
-					highestNum = num
-				}
-			}
-		}
-		highestNum += 1
-
-		//Original File Name
-		ofn := fmt.Sprintf("%s/%s", c.LogFileDir, c.LogFileName)
-
-		//New File Name
-		fp := strings.Split(ofn, ".") //File Parts, 0 -> File Path and Name, 1 -> File Extension
-		nfn := fmt.Sprintf("%s_%s_%d.%s", fp[0], dtStr, highestNum, fp[1])
-
-		os.Rename(ofn, nfn)
 	}
 }
